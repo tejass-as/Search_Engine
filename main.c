@@ -31,8 +31,9 @@ int main(int argc, char *argv[]) {
                 printf("\nTry Searching for another question .....\n");
             }
             fflush(stdin);
-            printf("\nWant to continue [y/n] ?");
-            scanf("%c", &j);
+            // printf("\nWant to continue [y/n] ?");
+            // fflush(stdin);
+            // scanf("%c", &j);
             if (j == 'n') {
                 break;
             }
