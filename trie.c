@@ -11,8 +11,7 @@ node_trie *new_node() {
     t = (node_trie *)malloc(sizeof(node_trie));
     if (!t)
         return NULL;
-    else
-    {
+    else {
         int i;
         t->end_of_quest = 0;
         for (i = 0; i < 26; i++)
@@ -22,8 +21,7 @@ node_trie *new_node() {
 }
 
 
-node_trie *insert_from_file()
-{
+node_trie *insert_from_file() {
 
     node_trie *root = NULL;
 
@@ -50,11 +48,10 @@ node_trie *insert_from_file()
     char quest[10000];
     char ans[200000];
 
-char *line = NULL;
-size_t len = 0;
+    char *line = NULL;
+    size_t len = 0;
     // inserting all the questions and answers from the database in the trie
-    while (getline(&line, &len, fp) != -1)
-    {
+    while (getline(&line, &len, fp) != -1) {
         char *separator = strstr(line, " ? ");
         if (separator == NULL) {
             printf("Error: Incorrect line format: %s\n", line);

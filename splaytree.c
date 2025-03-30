@@ -148,31 +148,24 @@ void insert_in_file(char *key, int freq) {
     strcpy(time, td);
 
     FILE *fp1 = fopen("backup.txt", "a");
-
     if (!fp1)
         printf("error1");
-    
     fprintf(fp1, "%s\n", key);
-
     fclose(fp1);
 
     FILE *fp2 = fopen("backup_key.txt", "a");
-
     if (!fp2)
         printf("error2");
-    
     fprintf(fp2, "%s\n", time);
-
     fclose(fp2);
 
     FILE *fp3 = fopen("freq_bck.txt", "a");
-
     if (!fp3)
         printf("error3");
     fprintf(fp3, "%s\n", key);
     fclose(fp3);
-    FILE *fp4 = fopen("freq.txt", "a");
 
+    FILE *fp4 = fopen("freq.txt", "a");
     if (!fp4)
         printf("error3");
     fprintf(fp4, "%d\n", freq);
