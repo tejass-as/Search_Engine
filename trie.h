@@ -13,4 +13,4 @@ void remove_spaces(char a[]);
 
 char* search(node_trie *root,char* key);
 
-int printAutoSuggestions(node_trie* root,char query[]) ;
+int printAutoSuggestions(node_trie* root,char query[]);
