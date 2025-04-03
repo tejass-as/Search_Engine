@@ -14,6 +14,26 @@ int main(int argc, char *argv[]) {
     int a, b, c, d, p1, k;
     char j;
     node_trie *root = insert_from_file();
+
+    if(argc == 1) {
+        printf("\n");
+        printf(" =============================================\n");
+        printf(" |             SEARCH ENGINE                |\n");
+        printf(" =============================================\n");
+        printf(" |  Use the following options               |\n");
+        printf(" |                                          |\n");
+        printf(" |  -s Search for a question                |\n");
+        printf(" |  -a Auto-suggest based on prefix         |\n");
+        printf(" |  -r View recently asked questions        |\n");
+        printf(" |  -h View search history                  |\n");
+        printf(" |  -fm View most frequently searched       |\n");
+        printf(" |  -fl View least frequently searched      |\n");
+        printf(" |  -d Clear search history                 |\n");
+        printf(" |                                          |\n");
+        printf(" =============================================\n");
+        return 0;
+    }
+
     if (strcmp(argv[1], "-s") == 0) {
         while (1) {
 
@@ -31,9 +51,9 @@ int main(int argc, char *argv[]) {
                 printf("\nTry Searching for another question .....\n");
             }
             fflush(stdin);
-            // printf("\nWant to continue [y/n] ?");
-            // fflush(stdin);
-            // scanf("%c", &j);
+            printf("\nWant to continue [y/n] ?");
+            fflush(stdin);
+            scanf("%c", &j);
             if (j == 'n') {
                 break;
             }
