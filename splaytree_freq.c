@@ -3,6 +3,7 @@
 #include <string.h>
 #include "splaytree_freq.h"
 #include "stack.h"
+#include <limits.h>
 
 void initSplay_freq(root1 *t) {
     *t = NULL;
@@ -84,9 +85,10 @@ void insert_freq(root1 *t, int freq, char qu[20000]) {
     nn->freq = freq;
     strcpy(nn->quest, qu);
 
-    if (*t == NULL)
+    if (*t == NULL) {
         *t = nn;
         return;
+    }
     
     node_freq *p, *q = NULL;
     p = *t;
@@ -152,94 +154,55 @@ node_freq* load_from_file_freq() {
     return t;
 }
 
-// 2. Fix the max_using_stack function
-int max_using_stack(root1 t, int current_max) {
-    if (t == NULL)
-        return 0;
-    
-    int max_freq = current_max;
-    
-    // Use a stack for non-recursive traversal
-    typedef struct {
-        node_freq* data[1000];
-        int top;
-    } NodeStack;
-    
-    NodeStack stack;
-    stack.top = -1;
-    
-    // Push function
-    #define PUSH(node) stack.data[++stack.top] = node
-    // Pop function
-    #define POP() stack.data[stack.top--]
-    // Is empty check
-    #define IS_EMPTY() (stack.top == -1)
-    
-    // Start with the root
-    PUSH(t);
-    
-    // Traverse the tree
-    while (!IS_EMPTY()) {
-        node_freq* current = POP();
-        
-        // Update max if current node's frequency is higher
-        if (current->freq > max_freq) {
-            max_freq = current->freq;
+int max_using_stack(root1 t, int a) {
+    if (!t)
+        return -1;
+    stack s;
+    init_stack(&s);
+    node_freq *p = t;
+
+    while (1) {
+        if (p != NULL) {
+            if (a <= p->freq)
+                a = p->freq;
+            push(&s, p);
+            p = p->left;
+        } else {
+            if (!isEmpty(&s)) {
+                p = pop_Stack(&s);
+                p = p->right;
+            }
+            else
+                break;
         }
-        
-        // Push right and left children (if they exist)
-        if (current->right != NULL)
-            PUSH(current->right);
-        if (current->left != NULL)
-            PUSH(current->left);
     }
-    
-    return max_freq;
+    return a;
 }
 
-// 3. Fix the min_using_stack function
-int min_using_stack(root1 t, int current_min) {
-    if (t == NULL)
-        return 1e9; // Return maximum possible value as initial min
-    
-    int min_freq = current_min;
-    
-    // Use a stack for non-recursive traversal
-    typedef struct {
-        node_freq* data[1000];
-        int top;
-    } NodeStack;
-    
-    NodeStack stack;
-    stack.top = -1;
-    
-    // Push function
-    #define PUSH(node) stack.data[++stack.top] = node
-    // Pop function
-    #define POP() stack.data[stack.top--]
-    // Is empty check
-    #define IS_EMPTY() (stack.top == -1)
-    
-    // Start with the root
-    PUSH(t);
-    
-    // Traverse the tree
-    while (!IS_EMPTY()) {
-        node_freq* current = POP();
-        
-        // Update min if current node's frequency is lower
-        if (current->freq < min_freq) {
-            min_freq = current->freq;
+//finds minimum frequency by traversing the tree
+int min_using_stack(root1 t, int a) {
+    if (!t)
+        return -1;
+    stack s;
+    init_stack(&s);
+    node_freq *p = t;
+
+    while (1) {
+        if (p != NULL) {
+            if (a >= p->freq)
+                a = p->freq;
+            push(&s, p);
+            p = p->left;
+        } else {
+            if (!isEmpty(&s)) {
+                p = pop_Stack(&s);
+                p = p->right;
+            }
+            else
+                break;
         }
-        
-        // Push right and left children (if they exist)
-        if (current->right != NULL)
-            PUSH(current->right);
-        if (current->left != NULL)
-            PUSH(current->left);
     }
-    
-    return min_freq;
+    return a;
 }
 
 // 4. Fix the print_max function
@@ -272,8 +235,8 @@ void print_max(root1 t, int max_freq) {
         
         // Print if frequency matches the max
         if (current->freq == max_freq) {
-            printf("\nQuestion: %s\n", current->quest);
-            printf("Frequency: %d\n", current->freq);
+            printf("\n\033[1;34mQuestion: %s\n", current->quest);
+            printf("Frequency: %d\n\033[0m", current->freq);
         }
         
         // Push right and left children (if they exist)
@@ -314,8 +277,8 @@ void print_min(root1 t, int min_freq) {
         
         // Print if frequency matches the min
         if (current->freq == min_freq) {
-            printf("\nQuestion: %s\n", current->quest);
-            printf("Frequency: %d\n", current->freq);
+            printf("\n\033[1;34mQuestion: %s\n", current->quest);
+            printf("Frequency: %d\033[0m\n", current->freq);
         }
         
         // Push right and left children (if they exist)

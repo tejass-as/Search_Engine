@@ -141,7 +141,8 @@ char *create_key() {
 }
 
 /*inserts the question searched in the backup question file ,time file 
-and frequency file*/void insert_in_file(char *key, int freq) {
+and frequency file*/
+void insert_in_file(char *key, int freq) {
     char time[200];
     char *td = create_key();
     strcpy(time, td);
@@ -193,6 +194,7 @@ and frequency file*/void insert_in_file(char *key, int freq) {
                 fclose(fp_freq_write);
             }
         }
+
     }
     
     // If question wasn't found, add it as a new entry
@@ -268,7 +270,7 @@ void inorder(root t) {
 void preorder(root t) {
     if (!t)
         return;
-    printf("%s ---- %s\n\n", t->quest, t->time);
+    printf("\033[1;34m%s ---- %s\033[0m\n\n", t->quest, t->time);
     preorder(t->left);
     preorder(t->right);
 }
@@ -280,7 +282,7 @@ void recent_quest(root t) {
 }
 
 void display_history(root t) {
-    printf("\n*****HISTORY*****\n");
+    printf("\n\033[1;33m*****HISTORY*****\033[0m\n");
     preorder(t);
 }
 

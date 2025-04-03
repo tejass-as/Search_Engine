@@ -154,7 +154,7 @@ void suggestions(node_trie *root, char currPrefix[]) {
 
     // if we get the complete question print the entire question
     if (root->end_of_quest)
-        printf("%s\n", currPrefix);
+        printf("\033[1;34m%s\n\033[0m", currPrefix);
     
     // All children struct node pointers are NULL (when we reach the last node return)
     if (isLastNode(root))
@@ -186,42 +186,45 @@ void suggestions(node_trie *root, char currPrefix[]) {
 // print suggestions for given query prefix.
 int printAutoSuggestions(node_trie *root, char query[]) {
     node_trie *temp = root;
-
+    
     // Check if prefix is present and find the node with last character of given string.
     int i;
     int n = strlen(query);
     for (i = 0; i < n; i++) {
         int index = (int)tolower(query[i]) - 'a';
-
+        
         // no string in the Trie has this prefix
-        if (!temp->child[index])
+        if (!temp->child[index]) {
+            printf("\033[1;31mMatch Not Found\033[0m\n");
             return 0;
-
+        }
+        
         temp = temp->child[index];
     }
-
+    
     // If prefix is present as a question.
     int isWord = (temp->end_of_quest == 1);
-
+    
     // If prefix is last node of tree (has no children)
     int isLast = isLastNode(temp);
-
+    
     // If prefix is present as a question, but there is no subtree below the last matching node.
     if (isWord && isLast) {
         printf("\n \n");
         // puts(query);
-        printf("*****Match Found*****\n\n");
+        printf("\033[1;32m*****Match Found*****\033[0m\n\n");
         printf("%s", query);
         return -1;
     }
-
+    
     // If there are are nodes below last matching character.
     if (!isLast) {
         char prefix[MAX];
         strcpy(prefix, query);
-        printf("\n\nMatch Found :-\n");
+        printf("\n\n\033[1;32mMatch Found :-\033[0m\n");
         suggestions(temp, prefix);
         return 1;
     }
+        
     return 1;
 }

@@ -17,20 +17,20 @@ int main(int argc, char *argv[]) {
 
     if(argc == 1) {
         printf("\n");
-        printf(" =============================================\n");
-        printf(" |             SEARCH ENGINE                |\n");
-        printf(" =============================================\n");
-        printf(" |  Use the following options               |\n");
-        printf(" |                                          |\n");
-        printf(" |  -s Search for a question                |\n");
-        printf(" |  -a Auto-suggest based on prefix         |\n");
-        printf(" |  -r View recently asked questions        |\n");
-        printf(" |  -h View search history                  |\n");
-        printf(" |  -fm View most frequently searched       |\n");
-        printf(" |  -fl View least frequently searched      |\n");
-        printf(" |  -d Clear search history                 |\n");
-        printf(" |                                          |\n");
-        printf(" =============================================\n");
+        printf("\033[1;31m ============================================\033[0m\n");
+        printf("\033[1;31m |\033[0m          \033[1;33m   SEARCH ENGINE                \033[1;31m|\033[0m\n");
+        printf("\033[1;31m ============================================\033[0m\n");
+        printf("\033[1;31m |\033[0m  \033[1;34mUse the following options               \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m                                          \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m \033[1;33m -s\033[1;32m Search for a question                \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m \033[1;33m -a\033[1;32m Auto-suggest based on prefix         \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m \033[1;33m -r\033[1;32m View recently asked questions        \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m \033[1;33m -h\033[1;32m View search history                  \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m \033[1;33m -fm\033[1;32m View most frequently searched       \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m \033[1;33m -fl\033[1;32m View least frequently searched      \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m \033[1;33m -d\033[1;32m Clear search history                 \033[1;31m|\033[0m\n");
+        printf("\033[1;31m |\033[0m                                          \033[1;31m|\033[0m\n");
+        printf("\033[1;31m ============================================\033[0m\n");
         return 0;
     }
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
         while (1) {
 
             fflush(stdin);
-            printf("\nEnter question : ");
+            printf("\n\033[1;33mEnter question : ");
             scanf("%[^\n]s", quest);
             insert_in_file(quest, 0);
 
@@ -48,10 +48,10 @@ int main(int argc, char *argv[]) {
                 strcpy(ans, search(root, quest));
                 printf("%s", ans);
             } else {
-                printf("\nTry Searching for another question .....\n");
+                printf("\n\033[1;31mTry Searching for another question .....\n");
             }
             fflush(stdin);
-            printf("\nWant to continue [y/n] ?");
+            printf("\n\033[1;32mWant to continue [y/n] ?\033[0m");
             fflush(stdin);
             scanf("%c", &j);
             if (j == 'n') {
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
         printf("\n");
     } else if (strcmp(argv[1], "-r") == 0) {
         node *p2 = load_from_file();
-        printf("\n*** Recently asked question : ***\n\n");
+        printf("\n\033[1;33m*** Recently asked question : ***\033[0m\n\n");
         recent_quest(p2);
         destroy(&p2);
         printf("\n");
@@ -88,7 +88,8 @@ int main(int argc, char *argv[]) {
         // Find the maximum frequency
         int max_frequency = max_using_stack(p4, 0); // Start with 0 as initial max
         
-        printf("\n**** Most Frequently searched questions ****\n");
+        printf("\n\033[1;33m**** Most Frequently searched questions ****\033[0m\n");
+        printf("%d", max_frequency);
         print_max(p4, max_frequency);
         
         // No need to rewrite files after just viewing
@@ -107,7 +108,7 @@ int main(int argc, char *argv[]) {
         // Find the minimum frequency - start with INT_MAX or q's frequency
         int min_frequency = min_using_stack(q, INT_MAX);
         
-        printf("\n**** Least searched questions ****\n");
+        printf("\n\033[1;33m**** Least searched questions ****\033[0m\n");
         print_min(q, min_frequency);
         
         // No need to rewrite files after just viewing
@@ -119,7 +120,7 @@ int main(int argc, char *argv[]) {
         fclose(fopen("backup_key.txt", "w"));
         fclose(fopen("freq.txt", "w"));
         fclose(fopen("freq_bck.txt", "w"));
-        printf("\n\n\tBrowser history cleared..!!!\n");
+        printf("\n\n\t\033[1;32mBrowser history cleared..!!!\033[0m\n");
     }
 
     return 0;
