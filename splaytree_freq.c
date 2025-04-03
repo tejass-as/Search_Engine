@@ -116,146 +116,295 @@ void insert_freq(root1 *t, int freq, char qu[20000]) {
 }
 
 //rewrites the files with new updated frequency
-void Rewrite(root1 t, char *filename1, char *filename2) {
-    FILE *fp1 = fopen(filename1, "w");
-
-    FILE *fp2 = fopen(filename2, "w");
-
-    if (!fp1 || !fp2)
-        return;
-    if (t == NULL)
-        return;
-    else {
-        stack *s;
-
-        init_stack(s);
-
-        node_freq *p = t;
-        do {
-
-            while (p != NULL) {
-
-                if (p->right != NULL)
-                    push(s, p->right);
-                push(s, p);
-
-                p = p->left;
-            }
-
-            p = pop_Stack(s);
-            if (p->right && p->right == s->arr[s->top]) {
-                pop_Stack(s);
-                push(s, p);
-                p = p->right;
-            } else {
-                fprintf(fp1, "%s", p->quest);
-                fprintf(fp2, "%d\n", p->freq);
-                p = NULL;
-            }
-
-        } while (!isEmpty(s));
+node_freq* load_from_file_freq() {
+    FILE *fp1 = fopen("freq_bck.txt", "r");
+    FILE *fp2 = fopen("freq.txt", "r");
+    
+    if (!fp1 || !fp2) {
+        printf("Error opening frequency files\n");
+        return NULL;
+    }
+    
+    root1 t = NULL;
+    initSplay_freq(&t);
+    
+    char question[20000];
+    int frequency;
+    
+    // Read questions and frequencies line by line
+    while (fgets(question, sizeof(question), fp1)) {
+        // Remove newline character
+        question[strcspn(question, "\n")] = 0;
+        
+        // Read corresponding frequency
+        if (fscanf(fp2, "%d\n", &frequency) != 1) {
+            printf("Error reading frequency value\n");
+            break;
+        }
+        
+        // Insert into splay tree
+        insert_freq(&t, frequency, question);
     }
     
     fclose(fp1);
     fclose(fp2);
-}
-
-//load all the question and frequency and will insert in splay tree
-node_freq *load_from_file_freq() {
-    char quest[20000];
-    int freq;
-    root1 t;
-    initSplay_freq(&t);
-    FILE *fp1 = fopen("freq_bck.txt", "r");
-    FILE *fp2 = fopen("freq.txt", "r");
-    if (!fp1 || !fp2)
-        printf("error");
-
-    while (fgets(quest, 20000, fp1)) {
-        fscanf(fp2, "%d", &freq);
-        insert_freq(&t, freq, quest);
-    }
-
-    fclose(fp1);
-    fclose(fp2);
-
+    
     return t;
 }
 
-//finds maximum frequency by traversing the tree
-int max_using_stack(root1 t, int a) {
-    if (!t)
-        return -1;
-
-    stack s;
-    init_stack(&s);
-    node_freq *p = t;
-
-    while (1) {
-        if (p != NULL) {
-            if (a <= p->freq)
-                a = p->freq;
-            push(&s, p);
-            p = p->left;
-        } else {
-            if (!isEmpty(&s)) {
-                p = pop_Stack(&s);
-                p = p->right;
-            } else
-                break;
-        }
-    }
-    return a;
-}
-
-//finds minimum frequency by traversing the tree
-int min_using_stack(root1 t, int a) {
-    if (!t)
-        return -1;
+// 2. Fix the max_using_stack function
+int max_using_stack(root1 t, int current_max) {
+    if (t == NULL)
+        return 0;
     
-    stack s;
-    init_stack(&s);
-    node_freq *p = t;
-
-    while (1) {
-        if (p != NULL) {
-            if (a >= p->freq)
-                a = p->freq;
-            push(&s, p);
-            p = p->left;
-        } else {
-            if (!isEmpty(&s)) {
-                p = pop_Stack(&s);
-                p = p->right;
-            } else
-                break;
+    int max_freq = current_max;
+    
+    // Use a stack for non-recursive traversal
+    typedef struct {
+        node_freq* data[1000];
+        int top;
+    } NodeStack;
+    
+    NodeStack stack;
+    stack.top = -1;
+    
+    // Push function
+    #define PUSH(node) stack.data[++stack.top] = node
+    // Pop function
+    #define POP() stack.data[stack.top--]
+    // Is empty check
+    #define IS_EMPTY() (stack.top == -1)
+    
+    // Start with the root
+    PUSH(t);
+    
+    // Traverse the tree
+    while (!IS_EMPTY()) {
+        node_freq* current = POP();
+        
+        // Update max if current node's frequency is higher
+        if (current->freq > max_freq) {
+            max_freq = current->freq;
         }
+        
+        // Push right and left children (if they exist)
+        if (current->right != NULL)
+            PUSH(current->right);
+        if (current->left != NULL)
+            PUSH(current->left);
     }
-    return a;
+    
+    return max_freq;
 }
 
-//would compare the maximum value with the frequencies of all question and print maximum
-void print_max(root1 t, int m) {
-    if (!t)
+// 3. Fix the min_using_stack function
+int min_using_stack(root1 t, int current_min) {
+    if (t == NULL)
+        return 1e9; // Return maximum possible value as initial min
+    
+    int min_freq = current_min;
+    
+    // Use a stack for non-recursive traversal
+    typedef struct {
+        node_freq* data[1000];
+        int top;
+    } NodeStack;
+    
+    NodeStack stack;
+    stack.top = -1;
+    
+    // Push function
+    #define PUSH(node) stack.data[++stack.top] = node
+    // Pop function
+    #define POP() stack.data[stack.top--]
+    // Is empty check
+    #define IS_EMPTY() (stack.top == -1)
+    
+    // Start with the root
+    PUSH(t);
+    
+    // Traverse the tree
+    while (!IS_EMPTY()) {
+        node_freq* current = POP();
+        
+        // Update min if current node's frequency is lower
+        if (current->freq < min_freq) {
+            min_freq = current->freq;
+        }
+        
+        // Push right and left children (if they exist)
+        if (current->right != NULL)
+            PUSH(current->right);
+        if (current->left != NULL)
+            PUSH(current->left);
+    }
+    
+    return min_freq;
+}
+
+// 4. Fix the print_max function
+void print_max(root1 t, int max_freq) {
+    if (t == NULL)
         return;
     
-    if (m == t->freq)
-        printf("\n%s >> searched %d times", t->quest, t->freq);
-
-    print_max(t->left, m);
-    print_max(t->right, m);
+    // Use a stack for non-recursive traversal
+    typedef struct {
+        node_freq* data[1000];
+        int top;
+    } NodeStack;
+    
+    NodeStack stack;
+    stack.top = -1;
+    
+    // Push function
+    #define PUSH(node) stack.data[++stack.top] = node
+    // Pop function
+    #define POP() stack.data[stack.top--]
+    // Is empty check
+    #define IS_EMPTY() (stack.top == -1)
+    
+    // Start with the root
+    PUSH(t);
+    
+    // Traverse the tree and print nodes with frequency equal to max_freq
+    while (!IS_EMPTY()) {
+        node_freq* current = POP();
+        
+        // Print if frequency matches the max
+        if (current->freq == max_freq) {
+            printf("\nQuestion: %s\n", current->quest);
+            printf("Frequency: %d\n", current->freq);
+        }
+        
+        // Push right and left children (if they exist)
+        if (current->right != NULL)
+            PUSH(current->right);
+        if (current->left != NULL)
+            PUSH(current->left);
+    }
 }
 
-//would compare the minimum value with the frequencies of all question and print minimum
-void print_min(root1 t, int m) {
-    if (!t)
+// 5. Fix the print_min function
+void print_min(root1 t, int min_freq) {
+    if (t == NULL)
         return;
     
-    if (m == t->freq)
-        printf("\n%s >> searched %d times", t->quest, t->freq);
+    // Use a stack for non-recursive traversal
+    typedef struct {
+        node_freq* data[1000];
+        int top;
+    } NodeStack;
     
-    print_max(t->left, m);
-    print_max(t->right, m);
+    NodeStack stack;
+    stack.top = -1;
+    
+    // Push function
+    #define PUSH(node) stack.data[++stack.top] = node
+    // Pop function
+    #define POP() stack.data[stack.top--]
+    // Is empty check
+    #define IS_EMPTY() (stack.top == -1)
+    
+    // Start with the root
+    PUSH(t);
+    
+    // Traverse the tree and print nodes with frequency equal to min_freq
+    while (!IS_EMPTY()) {
+        node_freq* current = POP();
+        
+        // Print if frequency matches the min
+        if (current->freq == min_freq) {
+            printf("\nQuestion: %s\n", current->quest);
+            printf("Frequency: %d\n", current->freq);
+        }
+        
+        // Push right and left children (if they exist)
+        if (current->right != NULL)
+            PUSH(current->right);
+        if (current->left != NULL)
+            PUSH(current->left);
+    }
+}
+
+// 6. Fix the Rewrite function
+void Rewrite(root1 t, char *filename1, char *filename2) {
+    if (t == NULL) {
+        // Don't rewrite empty trees - this would erase the files
+        printf("Warning: No data to write to files.\n");
+        return;
+    }
+    
+    // First, create temporary files
+    char temp_filename1[256];
+    char temp_filename2[256];
+    sprintf(temp_filename1, "%s.tmp", filename1);
+    sprintf(temp_filename2, "%s.tmp", filename2);
+    
+    FILE *fp1 = fopen(temp_filename1, "w");
+    FILE *fp2 = fopen(temp_filename2, "w");
+    
+    if (!fp1 || !fp2) {
+        printf("Error opening temporary files for rewriting\n");
+        if (fp1) fclose(fp1);
+        if (fp2) fclose(fp2);
+        return;
+    }
+    
+    // Track whether we've successfully written any data
+    int data_written = 0;
+    
+    // Create our own stack for traversal
+    struct Stack {
+        node_freq* nodes[1000];
+        int top;
+    } stack;
+    stack.top = -1;
+    
+    // Define stack operations
+    #define STACK_PUSH(n) (stack.nodes[++stack.top] = (n))
+    #define STACK_POP() (stack.nodes[stack.top--])
+    #define STACK_EMPTY() (stack.top < 0)
+    
+    // Do an inorder traversal to preserve order
+    node_freq* current = t;
+    
+    while (current != NULL || !STACK_EMPTY()) {
+        // Reach the leftmost node
+        while (current != NULL) {
+            STACK_PUSH(current);
+            current = current->left;
+        }
+        
+        // Process current node
+        current = STACK_POP();
+        
+        // Write to files - make sure we add newline to questions
+        fprintf(fp1, "%s\n", current->quest);
+        fprintf(fp2, "%d\n", current->freq);
+        data_written = 1;
+        
+        // Move to right subtree
+        current = current->right;
+    }
+    
+    // Close temp files
+    fclose(fp1);
+    fclose(fp2);
+    
+    // Only replace original files if we successfully wrote data
+    if (data_written) {
+        // Replace original files with temp files
+        remove(filename1);
+        remove(filename2);
+        rename(temp_filename1, filename1);
+        rename(temp_filename2, filename2);
+        printf("Frequency files updated successfully.\n");
+    } else {
+        // Remove temp files if no data was written
+        remove(temp_filename1);
+        remove(temp_filename2);
+        printf("Warning: No data was written to frequency files.\n");
+    }
 }
 
 void frequency(root1 t, int ch) {

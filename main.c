@@ -59,20 +59,40 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(argv[1], "-fm") == 0) {
         node_freq *p4 = NULL;
         p4 = load_from_file_freq();
-        a = p4->freq;
-        b = max_using_stack(p4, a);
+        
+        if (p4 == NULL) {
+            printf("No frequency data available.\n");
+            return 1;
+        }
+        
+        // Find the maximum frequency
+        int max_frequency = max_using_stack(p4, 0); // Start with 0 as initial max
+        
         printf("\n**** Most Frequently searched questions ****\n");
-        print_max(p4, b);
-        Rewrite(p4, "freq_bck.txt", "freq.txt");
+        print_max(p4, max_frequency);
+        
+        // No need to rewrite files after just viewing
+        // Rewrite(p4, "freq_bck.txt", "freq.txt");
+        
         printf("\n");
     } else if (strcmp(argv[1], "-fl") == 0) {
         node_freq *q = NULL;
         q = load_from_file_freq();
-        c = q->freq;
-        d = min_using_stack(q, c);
+        
+        if (q == NULL) {
+            printf("No frequency data available.\n");
+            return 1;
+        }
+        
+        // Find the minimum frequency - start with INT_MAX or q's frequency
+        int min_frequency = min_using_stack(q, INT_MAX);
+        
         printf("\n**** Least searched questions ****\n");
-        print_min(q, d);
-        Rewrite(q, "freq_bck.txt", "freq.txt");
+        print_min(q, min_frequency);
+        
+        // No need to rewrite files after just viewing
+        // Rewrite(q, "freq_bck.txt", "freq.txt");
+        
         printf("\n");
     } else if (strcmp(argv[1], "-d") == 0) {
         fclose(fopen("backup.txt", "w"));

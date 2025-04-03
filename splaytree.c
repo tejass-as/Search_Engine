@@ -141,35 +141,88 @@ char *create_key() {
 }
 
 /*inserts the question searched in the backup question file ,time file 
-and frequency file*/
-void insert_in_file(char *key, int freq) {
+and frequency file*/void insert_in_file(char *key, int freq) {
     char time[200];
     char *td = create_key();
     strcpy(time, td);
+    int found = 0;
+    
+    // First check if the question already exists in the frequency file
+    FILE *fp_check = fopen("freq_bck.txt", "r");
+    FILE *fp_freq_check = fopen("freq.txt", "r");
+    
+    if (fp_check && fp_freq_check) {
+        char line[20000];
+        int current_freq;
+        char temp_file_bck[20000] = "";
+        char temp_file_freq[20000] = "";
+        
+        // Read through the files to find if question exists
+        while (fgets(line, sizeof(line), fp_check)) {
+            line[strcspn(line, "\n")] = 0; // Remove newline
+            fscanf(fp_freq_check, "%d\n", &current_freq);
+            
+            if (strcmp(line, key) == 0) {
+                // Question found, increment frequency
+                current_freq++;
+                found = 1;
+            }
+            
+            // Build temp content
+            strcat(temp_file_bck, line);
+            strcat(temp_file_bck, "\n");
+            
+            char freq_str[20];
+            sprintf(freq_str, "%d\n", current_freq);
+            strcat(temp_file_freq, freq_str);
+        }
+        
+        fclose(fp_check);
+        fclose(fp_freq_check);
+        
+        if (found) {
+            // Rewrite the files with updated frequencies
+            FILE *fp_bck_write = fopen("freq_bck.txt", "w");
+            FILE *fp_freq_write = fopen("freq.txt", "w");
+            
+            if (fp_bck_write && fp_freq_write) {
+                fprintf(fp_bck_write, "%s", temp_file_bck);
+                fprintf(fp_freq_write, "%s", temp_file_freq);
+                
+                fclose(fp_bck_write);
+                fclose(fp_freq_write);
+            }
+        }
+    }
+    
+    // If question wasn't found, add it as a new entry
+    if (!found) {
+        // Add to history files
+        FILE *fp1 = fopen("backup.txt", "a");
+        if (!fp1)
+            printf("error1");
+        fprintf(fp1, "%s\n", key);
+        fclose(fp1);
 
-    FILE *fp1 = fopen("backup.txt", "a");
-    if (!fp1)
-        printf("error1");
-    fprintf(fp1, "%s\n", key);
-    fclose(fp1);
+        FILE *fp2 = fopen("backup_key.txt", "a");
+        if (!fp2)
+            printf("error2");
+        fprintf(fp2, "%s\n", time);
+        fclose(fp2);
 
-    FILE *fp2 = fopen("backup_key.txt", "a");
-    if (!fp2)
-        printf("error2");
-    fprintf(fp2, "%s\n", time);
-    fclose(fp2);
+        // Add to frequency files with initial frequency of 1
+        FILE *fp3 = fopen("freq_bck.txt", "a");
+        if (!fp3)
+            printf("error3");
+        fprintf(fp3, "%s\n", key);
+        fclose(fp3);
 
-    FILE *fp3 = fopen("freq_bck.txt", "a");
-    if (!fp3)
-        printf("error3");
-    fprintf(fp3, "%s\n", key);
-    fclose(fp3);
-
-    FILE *fp4 = fopen("freq.txt", "a");
-    if (!fp4)
-        printf("error3");
-    fprintf(fp4, "%d\n", freq);
-    fclose(fp4);
+        FILE *fp4 = fopen("freq.txt", "a");
+        if (!fp4)
+            printf("error4");
+        fprintf(fp4, "%d\n", 1); // Start with frequency 1, not 0
+        fclose(fp4);
+    }
 }
 
 // loads the content from the backups files in the splay tree
